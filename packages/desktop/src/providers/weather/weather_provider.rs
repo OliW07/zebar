@@ -27,6 +27,8 @@ pub struct WeatherOutput {
   pub celsius_temp: f32,
   pub fahrenheit_temp: f32,
   pub wind_speed: f32,
+  pub wind_direction: f32,
+  pub wind_direction_cardinal: &'static str,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -105,11 +107,26 @@ impl WeatherProvider {
         current_weather.temperature,
       ),
       wind_speed: current_weather.wind_speed,
+      wind_direction: current_weather.wind_direction,
+      wind_direction_cardinal: Self::degrees_to_cardinal(
+        current_weather.wind_direction,
+      ),
     })
   }
 
   fn celsius_to_fahrenheit(celsius_temp: f32) -> f32 {
     return (celsius_temp * 9.) / 5. + 32.;
+  }
+
+  fn degrees_to_cardinal(degrees: f32) -> &'static str {
+    // 360° / 8 dirs = 45° per direction
+    // Add 22.5° offset so each bucket is centered (e.g. N = 337.5° to
+    // 22.5°) % 8 handles the edge cases (e.g. degrees = 360 as the API
+    // rounds north to both 0 & 360)
+
+    let dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+    let index = ((degrees + 22.5) / 45.0).floor() as usize % 8;
+    dirs[index]
   }
 
   /// Relevant documentation: https://open-meteo.com/en/docs#weathervariables

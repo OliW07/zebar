@@ -32,6 +32,8 @@ export interface WeatherOutput {
   celsiusTemp: number;
   fahrenheitTemp: number;
   windSpeed: number;
+  windDirection: number;
+  windDirectionCardinal: string;
 }
 
 export type WeatherStatus =
